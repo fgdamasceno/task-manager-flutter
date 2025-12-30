@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager/models/task_model.dart';
 
 void main() {
@@ -51,6 +53,7 @@ class _HomePageState extends State<HomePage> {
           title: title,
         ),
       );
+      _saveTasks();
     });
 
     _taskController.clear(); // Limpa o campo para a próxima tarefa
@@ -62,6 +65,35 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _tasks.removeWhere((task) => task.id == id);
     });
+    _saveTasks(); // TODO: VERIFICAR SE POSIÇÃO ESTÁ CORRETA
+  }
+
+  // Função para carregar os dados ao iniciar o app
+  Future<void> _loadTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? tasksString = prefs.getString('tasks_key');
+
+    if (tasksString != null) {
+      final List<dynamic> decodedList = jsonDecode(tasksString);
+      setState(() {
+        _tasks.addAll(decodedList.map((item) => Task.fromJson(item)).toList());
+      });
+    }
+  }
+
+  // Função para salvar a lista no disco
+  Future<void> _saveTasks() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String encodedList = jsonEncode(
+      _tasks.map((t) => t.toJson()).toList(),
+    );
+    await prefs.setString('tasks_key', encodedList);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTasks(); // Carrega os dados salvos
   }
 
   @override
@@ -98,6 +130,7 @@ class _HomePageState extends State<HomePage> {
                 onChanged: (value) {
                   setState(() {
                     task.isDone = value!;
+                    _saveTasks();
                   });
                 },
               ),
