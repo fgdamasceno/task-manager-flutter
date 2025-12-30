@@ -63,50 +63,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    void _showAddTaskModal(BuildContext context) {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true, // Permite que o modal suba com o teclado
-        builder: (context) {
-          return Padding(
-            padding: EdgeInsetsGeometry.only(
-              bottom: MediaQuery.of(
-                context,
-              ).viewInsets.bottom, // Ajuste para o teclado
-              left: 20.0,
-              right: 20.0,
-              top: 20.0,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: _taskController,
-                  decoration: InputDecoration(
-                    labelText: 'Nova Tarefa',
-                    border: OutlineInputBorder(),
-                  ),
-                  autofocus: true,
-                  onSubmitted: (_) =>
-                      _addNewTask(), // Adiciona ao apertar 'Enter'
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-                ElevatedButton(
-                  onPressed: _addNewTask,
-                  child: Text('Adicionar'),
-                ),
-                SizedBox(
-                  height: 20.0,
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Minhas Tarefas'),
@@ -139,6 +95,50 @@ class _HomePageState extends State<HomePage> {
         onPressed: () => _showAddTaskModal(context),
         child: Icon(Icons.add),
       ),
+    );
+  }
+
+  void _showAddTaskModal(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Permite que o modal suba com o teclado
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsetsGeometry.only(
+            bottom: MediaQuery.of(
+              context,
+            ).viewInsets.bottom, // Ajuste para o teclado
+            left: 20.0,
+            right: 20.0,
+            top: 20.0,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _taskController,
+                decoration: InputDecoration(
+                  labelText: 'Nova Tarefa',
+                  border: OutlineInputBorder(),
+                ),
+                autofocus: true,
+                onSubmitted: (_) =>
+                    _addNewTask(), // Adiciona ao apertar 'Enter'
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+              ElevatedButton(
+                onPressed: _addNewTask,
+                child: Text('Adicionar'),
+              ),
+              SizedBox(
+                height: 20.0,
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
