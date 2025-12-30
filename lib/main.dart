@@ -27,7 +27,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // Simulando uma lista de tarefas que viria de um banco de dados
   final List<Task> _tasks = [];
 
   final TextEditingController _taskController = TextEditingController();
@@ -39,6 +38,7 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
+  // Adiciona tarefas à lista
   void _addNewTask() {
     final String title = _taskController.text;
 
@@ -57,6 +57,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context); // Fecha o modal
   }
 
+  // Remove tarefas
   void _removeTask(String id) {
     setState(() {
       _tasks.removeWhere((task) => task.id == id);
