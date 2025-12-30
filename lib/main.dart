@@ -28,11 +28,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // Simulando uma lista de tarefas que viria de um banco de dados
-  final List<Task> _tasks = [
-    Task(id: '1', title: 'Aprender Git Flow'),
-    Task(id: '2', title: 'Criar Modelos no Flutter'),
-    Task(id: '3', title: 'Fazer commit profissional'),
-  ];
+  final List<Task> _tasks = [];
 
   final TextEditingController _taskController = TextEditingController();
 
@@ -61,6 +57,12 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context); // Fecha o modal
   }
 
+  void _removeTask(String id) {
+    setState(() {
+      _tasks.removeWhere((task) => task.id == id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,19 +75,36 @@ class _HomePageState extends State<HomePage> {
         itemCount: _tasks.length,
         itemBuilder: (context, index) {
           final task = _tasks[index];
-          return ListTile(
-            leading: Checkbox(
-              value: task.isDone,
-              onChanged: (value) {
-                setState(() {
-                  task.isDone = value!;
-                });
-              },
+          return Dismissible(
+            key: Key(task.id),
+            direction: DismissDirection.endToStart,
+            background: Container(
+              color: Colors.red,
+              alignment: Alignment.centerRight,
+              padding: EdgeInsets.only(right: 20.0),
+              child: Icon(Icons.delete, color: Colors.white),
             ),
-            title: Text(
-              task.title,
-              style: TextStyle(
-                decoration: task.isDone ? TextDecoration.lineThrough : null,
+            onDismissed: (direction) {
+              _removeTask(task.id);
+              // Feedback visual (Snack-bar)
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('${task.title} removida')),
+              );
+            },
+            child: ListTile(
+              leading: Checkbox(
+                value: task.isDone,
+                onChanged: (value) {
+                  setState(() {
+                    task.isDone = value!;
+                  });
+                },
+              ),
+              title: Text(
+                task.title,
+                style: TextStyle(
+                  decoration: task.isDone ? TextDecoration.lineThrough : null,
+                ),
               ),
             ),
           );
