@@ -28,14 +28,85 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   // Simulando uma lista de tarefas que viria de um banco de dados
-  final List<Task> _task = [
+  final List<Task> _tasks = [
     Task(id: '1', title: 'Aprender Git Flow'),
     Task(id: '2', title: 'Criar Modelos no Flutter'),
     Task(id: '3', title: 'Fazer commit profissional'),
   ];
 
+  final TextEditingController _taskController = TextEditingController();
+
+  // É uma boa prática profissional descartar controladores para economizar memória
+  @override
+  void dispose() {
+    _taskController.dispose();
+    super.dispose();
+  }
+
+  void _addNewTask() {
+    final String title = _taskController.text;
+
+    if (title.isEmpty) return; // Validação básica: não aceita tarefa sem título
+
+    setState(() {
+      _tasks.add(
+        Task(
+          id: DateTime.now().toString(), // Gerando um ID único baseado no tempo
+          title: title,
+        ),
+      );
+    });
+
+    _taskController.clear(); // Limpa o campo para a próxima tarefa
+    Navigator.pop(context); // Fecha o modal
+  }
+
   @override
   Widget build(BuildContext context) {
+    void _showAddTaskModal(BuildContext context) {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true, // Permite que o modal suba com o teclado
+        builder: (context) {
+          return Padding(
+            padding: EdgeInsetsGeometry.only(
+              bottom: MediaQuery.of(
+                context,
+              ).viewInsets.bottom, // Ajuste para o teclado
+              left: 20.0,
+              right: 20.0,
+              top: 20.0,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _taskController,
+                  decoration: InputDecoration(
+                    labelText: 'Nova Tarefa',
+                    border: OutlineInputBorder(),
+                  ),
+                  autofocus: true,
+                  onSubmitted: (_) =>
+                      _addNewTask(), // Adiciona ao apertar 'Enter'
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+                ElevatedButton(
+                  onPressed: _addNewTask,
+                  child: Text('Adicionar'),
+                ),
+                SizedBox(
+                  height: 20.0,
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Minhas Tarefas'),
@@ -43,9 +114,9 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ListView.builder(
-        itemCount: _task.length,
+        itemCount: _tasks.length,
         itemBuilder: (context, index) {
-          final task = _task[index];
+          final task = _tasks[index];
           return ListTile(
             leading: Checkbox(
               value: task.isDone,
@@ -63,6 +134,10 @@ class _HomePageState extends State<HomePage> {
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddTaskModal(context),
+        child: Icon(Icons.add),
       ),
     );
   }
