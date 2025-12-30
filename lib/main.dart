@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:task_manager/models/task_model.dart';
+import 'package:task_manager/repositories/task_repository.dart';
 
 void main() {
   runApp(const TaskApp());
@@ -30,6 +29,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final List<Task> _tasks = [];
+  final TaskRepository _repository = TaskRepository();
 
   final TextEditingController _taskController = TextEditingController();
 
@@ -65,29 +65,20 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       _tasks.removeWhere((task) => task.id == id);
     });
-    _saveTasks(); // TODO: VERIFICAR SE POSIÇÃO ESTÁ CORRETA
+    _saveTasks();
   }
 
   // Função para carregar os dados ao iniciar o app
   Future<void> _loadTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? tasksString = prefs.getString('tasks_key');
-
-    if (tasksString != null) {
-      final List<dynamic> decodedList = jsonDecode(tasksString);
-      setState(() {
-        _tasks.addAll(decodedList.map((item) => Task.fromJson(item)).toList());
-      });
-    }
+    final tasks = await _repository.loadTaskList();
+    setState(() {
+      _tasks.addAll(tasks);
+    });
   }
 
   // Função para salvar a lista no disco
   Future<void> _saveTasks() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String encodedList = jsonEncode(
-      _tasks.map((t) => t.toJson()).toList(),
-    );
-    await prefs.setString('tasks_key', encodedList);
+    await _repository.saveTasksList(_tasks);
   }
 
   @override
@@ -104,46 +95,52 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: ListView.builder(
-        itemCount: _tasks.length,
-        itemBuilder: (context, index) {
-          final task = _tasks[index];
-          return Dismissible(
-            key: Key(task.id),
-            direction: DismissDirection.endToStart,
-            background: Container(
-              color: Colors.red,
-              alignment: Alignment.centerRight,
-              padding: EdgeInsets.only(right: 20.0),
-              child: Icon(Icons.delete, color: Colors.white),
+      body: _tasks.isEmpty
+          ? Center(
+              child: Text('Você não tem tarefas para hoje! 🎉'),
+            )
+          : ListView.builder(
+              itemCount: _tasks.length,
+              itemBuilder: (context, index) {
+                final task = _tasks[index];
+                return Dismissible(
+                  key: Key(task.id),
+                  direction: DismissDirection.startToEnd,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 20.0),
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  onDismissed: (direction) {
+                    _removeTask(task.id);
+                    // Feedback visual (Snack-bar)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${task.title} removida')),
+                    );
+                  },
+                  child: ListTile(
+                    leading: Checkbox(
+                      value: task.isDone,
+                      onChanged: (value) {
+                        setState(() {
+                          task.isDone = value!;
+                          _saveTasks();
+                        });
+                      },
+                    ),
+                    title: Text(
+                      task.title,
+                      style: TextStyle(
+                        decoration: task.isDone
+                            ? TextDecoration.lineThrough
+                            : null,
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-            onDismissed: (direction) {
-              _removeTask(task.id);
-              // Feedback visual (Snack-bar)
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${task.title} removida')),
-              );
-            },
-            child: ListTile(
-              leading: Checkbox(
-                value: task.isDone,
-                onChanged: (value) {
-                  setState(() {
-                    task.isDone = value!;
-                    _saveTasks();
-                  });
-                },
-              ),
-              title: Text(
-                task.title,
-                style: TextStyle(
-                  decoration: task.isDone ? TextDecoration.lineThrough : null,
-                ),
-              ),
-            ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddTaskModal(context),
         child: Icon(Icons.add),
