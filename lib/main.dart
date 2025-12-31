@@ -14,7 +14,7 @@ class TaskApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Task Manager',
-      theme: ThemeData(primarySwatch: Colors.blue, useMaterial3: true),
+      theme: ThemeData(primarySwatch: Colors.teal, useMaterial3: true),
       home: const HomePage(),
     );
   }
@@ -30,7 +30,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final List<Task> _tasks = [];
   final TaskRepository _repository = TaskRepository();
-
   final TextEditingController _taskController = TextEditingController();
 
   // É uma boa prática profissional descartar controladores para economizar memória
