@@ -29,7 +29,7 @@ Este aplicativo permite que o usuário gerencie suas atividades diárias atravé
    ```bash
    git clone [https://github.com/SEU_USUARIO/task-manager-flutter.git](https://github.com/fgdamasceno/task-manager-flutter.git)
 
-   cd task_manager
+   cd task-manager-flutter
 
    flutter pub get
 
