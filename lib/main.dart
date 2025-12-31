@@ -142,7 +142,12 @@ class _HomePageState extends State<HomePage> {
                     _removeTask(task.id);
                     // Feedback visual (Snack-bar)
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${task.title} removida')),
+                      SnackBar(
+                        duration: Duration(
+                          seconds: 1,
+                        ),
+                        content: Text('${task.title} removida'),
+                      ),
                     );
                   },
                   child: Card(
