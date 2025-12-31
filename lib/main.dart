@@ -14,7 +14,18 @@ class TaskApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Task Manager',
-      theme: ThemeData(primarySwatch: Colors.teal, useMaterial3: true),
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          brightness: Brightness.light,
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.deepPurple,
+          foregroundColor: Colors.white,
+          elevation: 4,
+        ),
+      ),
       home: const HomePage(),
     );
   }
@@ -96,7 +107,23 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _tasks.isEmpty
           ? Center(
-              child: Text('Você não tem tarefas para hoje! 🎉'),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.assignment_turned_in_outlined,
+                    size: 80.0,
+                    color: Colors.grey[400],
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  Text(
+                    'Nenhuma tarefa encontrada!',
+                    style: TextStyle(fontSize: 18.0, color: Colors.grey),
+                  ),
+                ],
+              ),
             )
           : ListView.builder(
               itemCount: _tasks.length,
@@ -118,22 +145,29 @@ class _HomePageState extends State<HomePage> {
                       SnackBar(content: Text('${task.title} removida')),
                     );
                   },
-                  child: ListTile(
-                    leading: Checkbox(
-                      value: task.isDone,
-                      onChanged: (value) {
-                        setState(() {
-                          task.isDone = value!;
-                          _saveTasks();
-                        });
-                      },
+                  child: Card(
+                    elevation: 2.0,
+                    margin: EdgeInsets.symmetric(
+                      horizontal: 10.0,
+                      vertical: 5.0,
                     ),
-                    title: Text(
-                      task.title,
-                      style: TextStyle(
-                        decoration: task.isDone
-                            ? TextDecoration.lineThrough
-                            : null,
+                    child: ListTile(
+                      leading: Checkbox(
+                        value: task.isDone,
+                        onChanged: (value) {
+                          setState(() {
+                            task.isDone = value!;
+                            _saveTasks();
+                          });
+                        },
+                      ),
+                      title: Text(
+                        task.title,
+                        style: TextStyle(
+                          decoration: task.isDone
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
                       ),
                     ),
                   ),
